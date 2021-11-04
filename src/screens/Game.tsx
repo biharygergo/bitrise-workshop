@@ -6,7 +6,7 @@ import { maxLives, maxQuestions } from '../config';
 import { IQuiz } from '../interfaces';
 import { shuffle } from '../utils';
 
-interface IProps {
+export interface IProps {
   questions: IQuiz[];
   currentIndex: number;
   handleAnswerSelected: (answer: string) => void;
