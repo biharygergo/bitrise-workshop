@@ -70,4 +70,17 @@ describe("App", () => {
     const currentStep = await mountedApp.findByTestId("currentStep");
     expect(currentStep.props.children).toEqual(`2 / ${maxQuestions}`);
   });
+
+  it("Should halve answers when lifeline clicked", async () => {
+    const mountedApp = render(<App />);
+
+    const halveButton = await mountedApp.findByTestId("thanos");
+
+    await fireEvent.press(halveButton);
+    await fireEvent.press(halveButton);
+
+    const answers = await mountedApp.findAllByTestId(/answer-[0-9]/);
+    expect(answers).toHaveLength(2);
+
+  });
 });

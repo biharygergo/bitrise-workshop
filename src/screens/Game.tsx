@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements';
-import { Button, QuizQuestion } from '../components';
-import { maxLives, maxQuestions } from '../config';
-import { IQuiz } from '../interfaces';
-import { shuffle } from '../utils';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Icon } from "react-native-elements";
+import { Button, QuizQuestion } from "../components";
+import { maxLives, maxQuestions } from "../config";
+import { IQuiz } from "../interfaces";
+import { shuffle } from "../utils";
 
 export interface IProps {
   questions: IQuiz[];
@@ -27,6 +27,7 @@ const Game = ({
     questions.length > 0 ? questions[currentIndex] : undefined;
 
   const [answers, setAnswers] = useState<string[]>([]);
+  const [hasUsedLifeline, setHasUsedLifeline] = useState<boolean>(false);
   const shuffled = useMemo(() => shuffle(answers), [answers]);
 
   useEffect(() => {
@@ -35,8 +36,24 @@ const Game = ({
         currentQuestion.correct_answer,
         ...currentQuestion.incorrect_answers,
       ]);
+      setHasUsedLifeline(false);
     }
   }, [currentQuestion]);
+
+  const onLifelineClicked = () => {
+    if (currentQuestion) {
+      setAnswers(
+        shuffle([
+          currentQuestion?.correct_answer,
+          ...currentQuestion?.incorrect_answers.slice(
+            0,
+            Math.floor(currentQuestion.incorrect_answers.length / 2)
+          ),
+        ])
+      );
+      setHasUsedLifeline(true);
+    }
+  };
 
   return (
     <>
@@ -54,20 +71,27 @@ const Game = ({
           {`${currentIndex + 1} / ${maxQuestions}`}
         </Text>
         {Array(maxLives)
-          .fill('')
+          .fill("")
           .map((_, i) => (
             <Icon
               key={i}
               name="heart"
               tvParallaxProperties
               type="entypo"
-              testID={`heart-${i < lives ? 'full' : 'empty'}`}
-              color={i < lives ? 'red' : 'white'}
+              testID={`heart-${i < lives ? "full" : "empty"}`}
+              color={i < lives ? "red" : "white"}
               size={40}
             />
           ))}
 
-        <Button fullWidth={false} inverted text="50 / 50" testID="thanos" />
+        <Button
+          fullWidth={false}
+          inverted
+          text="50 / 50"
+          testID="thanos"
+          onPress={onLifelineClicked}
+          disabled={hasUsedLifeline}
+        />
       </View>
 
       {isLoading || !currentQuestion ? (
@@ -87,19 +111,19 @@ const Game = ({
 
 const styles = StyleSheet.create({
   row: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 15,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   header: {
     fontSize: 50,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
